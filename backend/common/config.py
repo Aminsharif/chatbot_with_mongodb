@@ -46,6 +46,9 @@ class Config(BaseObject):
             mongo_username: str = None,
             mongo_password: str = None,
             mongo_cluster: str = None,
+            sql_connection_string: str = None,
+            sql_database_name: str = None,
+            sql_table_name: str = None,
             memory_window_size: int = 5
     ):
         super().__init__()
@@ -72,6 +75,13 @@ class Config(BaseObject):
         self.memory_connection_string = memory_connection_string if memory_connection_string is not None \
             else os.getenv(MONGO_CONNECTION_STRING,
                            f"mongodb+srv://mongodb:s4Nlrns35MYiM896@cluster0.kcu5ueu.mongodb.net/?appName=Cluster0")
+        self.sql_connection_string = sql_connection_string if sql_connection_string is not None \
+            else os.getenv(SQL_CONNECTION_STRING,
+                           f"mysql+pymysql://root:123456@localhost:3306/chatdb")
+        self.sql_database_name = sql_database_name if sql_database_name is not None \
+            else os.getenv(SQL_DATABASE_NAME, "chatdb")
+        self.sql_table_name = sql_table_name if sql_table_name is not None \
+            else os.getenv(SQL_TABLE_NAME, "chat_memory")
         self.session_id = session_id if session_id is not None else "chatbot_backend"
         self.memory_window_size = memory_window_size if memory_window_size is not None else 5
         self.ai_prefix = os.getenv(AI_PREFIX, "AI")
