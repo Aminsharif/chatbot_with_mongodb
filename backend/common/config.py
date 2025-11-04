@@ -49,6 +49,11 @@ class Config(BaseObject):
             sql_connection_string: str = None,
             sql_database_name: str = None,
             sql_table_name: str = None,
+            redis_connection_string: str= None,
+            redis_database_name: str = None,
+            postgres_connection_string: str = None,
+            postgres_database_name: str = None,
+            postgres_table_name: str = None,
             memory_window_size: int = 5
     ):
         super().__init__()
@@ -80,8 +85,25 @@ class Config(BaseObject):
                            f"mysql+pymysql://root:123456@localhost:3306/chatdb")
         self.sql_database_name = sql_database_name if sql_database_name is not None \
             else os.getenv(SQL_DATABASE_NAME, "chatdb")
+        
+        self.redis_connection_string = redis_connection_string if redis_connection_string is not None \
+            else os.getenv(RADIS_CONNECTION_STRING,
+                           f"redis://localhost:6379/0")
+        self.redis_database_name = redis_database_name if redis_database_name is not None \
+            else os.getenv(RADIS_DATABASE_NAME, "chatdb")
+        
         self.sql_table_name = sql_table_name if sql_table_name is not None \
             else os.getenv(SQL_TABLE_NAME, "chat_memory")
+        
+
+        self.postgres_connection_string = postgres_connection_string if postgres_connection_string is not None \
+            else os.getenv(POSTGRES_CONNECTION_STRING,
+                           f"postgresql+psycopg2://postgres:123456@localhost:5432/chatdb")
+        self.postgres_database_name = postgres_database_name if postgres_database_name is not None \
+            else os.getenv(POSTGRES_DATABASE_NAME, "chatdb")
+        self.postgres_table_name = postgres_table_name if postgres_table_name is not None \
+            else os.getenv(POSTGRES_TABLE_NAME, "chat_memory")
+        
         self.session_id = session_id if session_id is not None else "chatbot_backend"
         self.memory_window_size = memory_window_size if memory_window_size is not None else 5
         self.ai_prefix = os.getenv(AI_PREFIX, "AI")

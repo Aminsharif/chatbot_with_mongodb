@@ -1,9 +1,10 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict
-from sqlalchemy import Column, Integer, String, DateTime, Index
+from sqlalchemy import Column, Integer, String, DateTime, Index, JSON
 from sqlalchemy.dialects.mysql import JSON as MySQLJSON
 from datetime import datetime
 from sqlalchemy.orm import declarative_base
+from pgvector.sqlalchemy import Vector
 
 Base = declarative_base()
 
@@ -32,15 +33,29 @@ def messages_from_dict(message: dict) -> str:
     return f"{human_message.role}: {human_message.message}\n{ai_message.role}: {ai_message.message}"
 
 
+# class ChatMemory(Base):
+#     __tablename__ = "chat_memory"
+
+#     id = Column(Integer, primary_key=True, autoincrement=True)
+#     ConversationId = Column(String(255), nullable=False)
+#     SessionId = Column(String(255), nullable=False)
+#     History = Column(MySQLJSON, nullable=False)
+#     CreatedAt = Column(DateTime, default=datetime.utcnow)
+#     __table_args__ = (
+#         Index("idx_sessionid", "SessionId"),
+#     )
+
 class ChatMemory(Base):
     __tablename__ = "chat_memory"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    ConversationId = Column(String(255), nullable=False)
-    SessionId = Column(String(255), nullable=False)
-    History = Column(MySQLJSON, nullable=False)
-    CreatedAt = Column(DateTime, default=datetime.utcnow)
+    ConversationId = Column(String(255, collation=None), nullable=False, quote=True, name="ConversationId")
+    SessionId = Column(String(255, collation=None), nullable=False, quote=True, name="SessionId")
+    History = Column(JSON, nullable=False, quote=True, name="History")
+    Embedding = Column(Vector(384), quote=True, name="Embedding")
+    CreatedAt = Column(DateTime, default=datetime.utcnow, quote=True, name="CreatedAt")
 
     __table_args__ = (
         Index("idx_sessionid", "SessionId"),
     )
+

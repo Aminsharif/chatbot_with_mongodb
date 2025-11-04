@@ -11,6 +11,7 @@ from langchain.agents.format_scratchpad import format_log_to_str
 from langchain.agents.output_parsers import ReActSingleInputOutputParser
 from langchain.callbacks.tracers.langchain import wait_for_all_tracers
 from langchain.callbacks.streaming_stdout_final_only import FinalStreamingStdOutCallbackHandler
+from langchain_core.runnables import RunnablePassthrough
 
 from memory import MemoryTypes, MEM_TO_CLASS
 from models import ModelTypes
@@ -78,19 +79,25 @@ class Bot(BaseObject):
         return history
 
     def start(self):
+        history_loader = RunnableMap({
+            "input": itemgetter("input"),
+            "agent_scratchpad": itemgetter("intermediate_steps") | RunnableLambda(format_log_to_str),
+            "history": RunnablePassthrough() | RunnableLambda(lambda x: self.memory.load_history(x["conversation_id"], x["input"]))
+        }).with_config(run_name="LoadHistory") | RunnableLambda(lambda x: print(f"Loaded history: {x['history']}") or x)
+
         # history_loader = RunnableMap({
         #     "input": itemgetter("input"),
         #     "agent_scratchpad": itemgetter("intermediate_steps") | RunnableLambda(format_log_to_str),
         #     "history": itemgetter("conversation_id") | RunnableLambda(self.memory.load_history)
         # }).with_config(run_name="LoadHistory")
 
-        history_loader = RunnableMap({
-            "input": itemgetter("input"),
-            "agent_scratchpad": itemgetter("intermediate_steps") | RunnableLambda(format_log_to_str),
-            "history": itemgetter("conversation_id") | RunnableLambda(
-                lambda conv_id: self._debug_load_history(conv_id)  # Custom debug function
-            )
-        }).with_config(run_name="LoadHistory")
+        # history_loader = RunnableMap({
+        #     "input": itemgetter("input"),
+        #     "agent_scratchpad": itemgetter("intermediate_steps") | RunnableLambda(format_log_to_str),
+        #     "history": itemgetter("conversation_id") | RunnableLambda(
+        #         lambda conv_id: self._debug_load_history(conv_id)  # Custom debug function
+        #     )
+        # }).with_config(run_name="LoadHistory")
 
         # Add this method to your class
 

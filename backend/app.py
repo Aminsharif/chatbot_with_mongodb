@@ -16,7 +16,7 @@ from common.objects import ChatRequest
 load_dotenv()
 
 # Initialize the bot with the desired configuration
-bot = Bot(memory=MemoryTypes.SQL_MEMORY, model=ModelTypes.GROQ, tools=[], model_kwargs={'model_name': 'groq/compound'})
+bot = Bot(memory=MemoryTypes.POSTGRES_MEMORY, model=ModelTypes.GROQ, tools=[], model_kwargs={'model_name': 'groq/compound'})
 
 # Create the FastAPI app
 app = FastAPI(
